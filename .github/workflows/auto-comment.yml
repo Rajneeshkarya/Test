@@ -11,7 +11,7 @@ jobs:
       - name: Auto Comment on PR
         uses: wow-actions/auto-comment@v1
         with:
-          GITHUB_TOKEN: ${{ secrets.MY_PAT_TOKEN }}
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           pullRequestOpened: |
             👋 @{{ author }}
             Thank you for raising your pull request.
