@@ -1,18 +1,30 @@
-name: Auto Comment
+name: Auto Comment on PR Merge
 
 on:
   pull_request:
-    types: [opened]
+    types: [closed]
 
 jobs:
-  run:
+  comment:
     runs-on: ubuntu-latest
+    if: github.event.pull_request.merged == true
+
     steps:
-      - name: Auto Comment on PR
-        uses: wow-actions/auto-comment@v1
-        with:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          pullRequestOpened: |
-            👋 @{{ author }}
-            Thank you for raising your pull request.
-            Please make sure you have followed our contributing guidelines. We will review it as soon as possible.
+    - name: Checkout Repository
+      uses: actions/checkout@v2
+
+    - name: Add Comment to Issue
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      run: |
+        COMMENT=$(cat <<EOF
+        {
+          "body": "[Auto-Comment]: 🎉 Your pull request has been successfully merged! 🎉 Thank you for your valuable contribution to our project. Your efforts are greatly appreciated. Feel free to reach out if you have any more contributions or if there's anything else we can assist you with. Keep up the fantastic work! 🚀"
+        }
+        EOF
+        )
+        curl -X POST \
+          -H "Authorization: Bearer $GITHUB_TOKEN" \
+          -H "Accept: application/vnd.github.v3+json" \
+          https://api.github.com/repos/${{ github.repository }}/issues/${{ github.event.pull_request.number }}/comments \
+          -d "$COMMENT"
